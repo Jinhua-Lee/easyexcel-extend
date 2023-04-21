@@ -1,5 +1,6 @@
 package com.jinhua.easyexcel.ext.domain.valobj.meta;
 
+import com.jinhua.easyexcel.ext.domain.service.CellString2FieldSetter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -30,9 +31,9 @@ public class FieldAndAnnotationVO {
         this.annotation = annotation;
     }
 
-    public void setFieldValue4Entity(Object entity, Object value) {
+    public void setCellStringField4Entity(Object entity, String value, CellString2FieldSetter cellString2FieldSetter) {
         try {
-            field.set(entity, value);
+            cellString2FieldSetter.cellString2Field(this.field, value, entity);
         } catch (IllegalAccessException e) {
             log.error("访问权限错误，message = {}", e.getMessage());
         }

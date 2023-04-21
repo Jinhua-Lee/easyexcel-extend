@@ -22,7 +22,7 @@ import java.util.List;
 public class DynamicColumnEntity {
 
     @ExcelProperty(value = "id")
-    private String id;
+    private Integer id;
     @ExcelProperty(value = "name")
     private String name;
 
