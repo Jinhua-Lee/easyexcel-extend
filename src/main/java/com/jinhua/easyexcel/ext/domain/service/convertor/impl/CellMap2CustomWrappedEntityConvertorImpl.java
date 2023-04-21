@@ -1,15 +1,17 @@
-package com.jinhua.easyexcel.ext.domain.service.impl;
+package com.jinhua.easyexcel.ext.domain.service.convertor.impl;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.jinhua.easyexcel.ext.annotation.ColumnGatheredSubType;
 import com.jinhua.easyexcel.ext.domain.entity.IColumnGatheredSubType;
 import com.jinhua.easyexcel.ext.domain.entity.meta.DynamicColumnAnalysisInfo;
-import com.jinhua.easyexcel.ext.domain.service.CellMap2CustomWrappedEntityConvertor;
-import com.jinhua.easyexcel.ext.domain.service.CellString2FieldSetter;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CellMap2CustomWrappedEntityConvertor;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CellString2FieldSetter;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.FieldAndAnnotationVO;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.FieldAndAnnotationWithGenericType;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.TypeAndAnnotationVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -19,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Jinhua-Lee
  */
 @Slf4j
+@Component
 @SuppressWarnings("unused")
 public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomWrappedEntityConvertor {
 
@@ -26,7 +29,7 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
      * 通过缓存来减少解析过程
      */
     private final Map<Class<?>, DynamicColumnAnalysisInfo> dynamicColumnAnalysisInfos = new ConcurrentHashMap<>();
-    private final CellString2FieldSetter cellString2FieldSetter = new CellString2FieldSetterImpl();
+    private CellString2FieldSetter cellString2FieldSetter;
 
     @Override
     public <T> T cellMap2CustomWrappedEntity(Map<Integer, String> cellIndex2Data,
@@ -173,4 +176,8 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
         return dynamicColumnEntity;
     }
 
+    @Autowired
+    public void setCellString2FieldSetter(CellString2FieldSetter cellString2FieldSetter) {
+        this.cellString2FieldSetter = cellString2FieldSetter;
+    }
 }

@@ -1,6 +1,6 @@
 package com.jinhua.easyexcel.ext.domain.valobj.meta;
 
-import com.jinhua.easyexcel.ext.domain.service.CellString2FieldSetter;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CellString2FieldSetter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

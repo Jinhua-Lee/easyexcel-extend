@@ -1,12 +1,11 @@
-package com.jinhua.easyexcel.ext.service.impl;
+package com.jinhua.easyexcel.ext.service.listener;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.jinhua.easyexcel.ext.domain.entity.DynamicColumnEntity;
-import com.jinhua.easyexcel.ext.domain.service.CellMap2CustomWrappedEntityConvertor;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CellMap2CustomWrappedEntityConvertor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +17,6 @@ import java.util.Map;
  * @author Jinhua-Lee
  */
 @Slf4j
-@Scope(value = "prototype")
 @Component
 public class MapDataAnalysisEventListener extends AnalysisEventListener<Map<Integer, String>> {
 

@@ -1,6 +1,7 @@
 package com.jinhua.easyexcel.ext.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.jinhua.easyexcel.ext.service.listener.MapDataAnalysisEventListener;
 import com.jinhua.easyexcel.ext.service.StreamHandleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     }
 
     @Autowired
-    public void setMapDataAnalysisEventListener(MapDataAnalysisEventListener mapDataAnalysisEventListener) {
+    public void setMapDataAnalysisEventListener(
+            MapDataAnalysisEventListener mapDataAnalysisEventListener) {
         this.mapDataAnalysisEventListener = mapDataAnalysisEventListener;
     }
 }

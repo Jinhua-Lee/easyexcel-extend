@@ -1,7 +1,7 @@
 package com.jinhua.easyexcel.ext.config;
 
-import com.jinhua.easyexcel.ext.domain.service.CellMap2CustomWrappedEntityConvertor;
-import com.jinhua.easyexcel.ext.domain.service.impl.CellMap2CustomWrappedEntityConvertorImpl;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CellMap2CustomWrappedEntityConvertor;
+import com.jinhua.easyexcel.ext.domain.service.convertor.impl.CellMap2CustomWrappedEntityConvertorImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
