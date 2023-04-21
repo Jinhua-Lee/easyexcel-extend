@@ -4,9 +4,9 @@ import java.lang.reflect.Field;
 import java.time.format.DateTimeParseException;
 
 /**
- * 字段设置器
- * 1. Excel中的Cell目前是以String类型接收的。
- * 2. Java中支持一些基础的数据类型转换
+ * 字段设置器<p>&emsp;
+ * 1. Excel中的Cell目前是以String类型接收的。<p>&emsp;
+ * 2. Java中支持一些基础的数据类型转换。<p>
  *
  * @author Jinhua-Lee
  */
