@@ -4,6 +4,7 @@ import com.jinhua.easyexcel.ext.domain.service.convertor.CellString2FieldSetter;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,6 +49,10 @@ public class CellString2FieldSetterImpl implements CellString2FieldSetter {
             field.set(obj, LocalTime.parse(cellVal));
         } else if (type == LocalDateTime.class) {
             field.set(obj, LocalDateTime.parse(cellVal));
+        }
+        // decimal type
+        else if (type == BigDecimal.class) {
+            field.set(obj, new BigDecimal(cellVal));
         }
     }
 
