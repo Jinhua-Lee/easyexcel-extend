@@ -4,6 +4,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.jinhua.easyexcel.ext.domain.entity.IOperationWithEntity;
 import com.jinhua.easyexcel.ext.domain.service.convertor.CellMap2CustomWrappedEntityConvertor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @author Jinhua-Lee
  */
 @Slf4j
+@Getter
 @Component
 public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Map<Integer, String>> {
 
