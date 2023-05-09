@@ -2,6 +2,7 @@ package com.jinhua.easyexcel.ext.domain.service.convertor.impl;
 
 import com.jinhua.easyexcel.ext.domain.service.convertor.CellString2FieldSetter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -20,6 +21,9 @@ public class CellString2FieldSetterImpl implements CellString2FieldSetter {
     @Override
     public void cellString2Field(Field field, String cellVal, Object obj)
             throws IllegalAccessException, IllegalArgumentException, DateTimeParseException {
+        if (ObjectUtils.isEmpty(cellVal)) {
+            return;
+        }
         Class<?> type = field.getType();
         if (type == String.class) {
             field.set(obj, cellVal);
@@ -29,7 +33,7 @@ public class CellString2FieldSetterImpl implements CellString2FieldSetter {
         // wrapped type
         else if (type == Boolean.class) {
             field.set(obj, Boolean.parseBoolean(cellVal));
-        } else if (type == Byte.class ) {
+        } else if (type == Byte.class) {
             field.set(obj, Byte.parseByte(cellVal));
         } else if (type == Short.class) {
             field.set(obj, Short.parseShort(cellVal));
@@ -60,7 +64,7 @@ public class CellString2FieldSetterImpl implements CellString2FieldSetter {
         // primitive type
         if (type == Boolean.TYPE) {
             field.setBoolean(obj, Boolean.parseBoolean(cellVal));
-        } else if (type == Byte.TYPE ) {
+        } else if (type == Byte.TYPE) {
             field.setByte(obj, Byte.parseByte(cellVal));
         } else if (type == Short.TYPE) {
             field.setShort(obj, Short.parseShort(cellVal));
