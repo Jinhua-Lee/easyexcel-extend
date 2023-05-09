@@ -18,11 +18,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @DynamicColumnAnalysis
-public class DynamicColumnEntity {
+public class DynamicColumnEntity extends BaseDynamicEntity {
 
-    @ExcelProperty(value = "id")
-    private Integer id;
     @ExcelProperty(value = "name")
     private String name;
 

@@ -41,7 +41,8 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
     public ParentTypeAndFieldsVO(Class<?> type) {
         super(type, DynamicColumnAnalysis.class);
         // 1. 判断【动态列解析】的开启状态
-        if (!type.isAnnotationPresent(DynamicColumnAnalysis.class)) {
+        if (!type.isAnnotationPresent(DynamicColumnAnalysis.class)
+                && !type.getSuperclass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
             throw new UnsupportedOperationException(
                     String.format("类型未允许自定义解析！ class = %s", type)
             );
@@ -52,7 +53,11 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
 
     private void buildParentMeta(Class<?> type) {
         // 2. 父类型的的非聚合属性列表
-        this.nonGatheredFieldsAndAnnotations = Arrays.stream(type.getDeclaredFields())
+        Set<Field> declaredFields = new HashSet<>();
+        declaredFields.addAll(Arrays.asList(type.getDeclaredFields()));
+        declaredFields.addAll(Arrays.asList(type.getSuperclass().getDeclaredFields()));
+
+        this.nonGatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
                 .peek(field -> field.setAccessible(true))
                 .filter(field ->
@@ -62,7 +67,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                         new FieldAndAnnotationVO(field, field.getAnnotation(ExcelProperty.class))
                 ).collect(Collectors.toSet());
         // 3. 【父类型的聚合属性 + 引用的子类型】列表
-        this.gatheredFieldsAndAnnotations = Arrays.stream(type.getDeclaredFields())
+        this.gatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
                 .peek(field -> field.setAccessible(true))
                 .filter(field ->
