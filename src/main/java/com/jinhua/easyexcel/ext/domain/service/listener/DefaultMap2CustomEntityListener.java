@@ -4,7 +4,6 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.jinhua.easyexcel.ext.domain.entity.IOperationWithEntity;
 import com.jinhua.easyexcel.ext.domain.service.convertor.CellMap2CustomWrappedEntityConvertor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,18 +17,17 @@ import java.util.Map;
  * @author Jinhua-Lee
  */
 @Slf4j
-@Getter
 @Component
 public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Map<Integer, String>> {
 
     /**
      * 第一行元信息【列索引】 -> 【列名】
      */
-    private Map<Integer, String> index2HeadName;
+    protected Map<Integer, String> index2HeadName;
 
-    private final Class<T> customWrappedEntityClass;
-    private final IOperationWithEntity<T> operation;
-    private final CellMap2CustomWrappedEntityConvertor cellMap2CustomWrappedEntityConvertor;
+    protected final Class<T> customWrappedEntityClass;
+    protected final IOperationWithEntity<T> operation;
+    protected final CellMap2CustomWrappedEntityConvertor cellMap2CustomWrappedEntityConvertor;
 
     @Autowired
     public DefaultMap2CustomEntityListener(Class<T> customWrappedEntityClass,
@@ -43,7 +41,7 @@ public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Ma
     @Override
     public void invoke(Map<Integer, String> data, AnalysisContext context) {
 
-        if (context.readRowHolder().getRowIndex() == 0) {
+        if (context.readRowHolder().getRowIndex() == getHeadRowIndex()) {
             this.index2HeadName = data;
         } else {
             handleData(data, index2HeadName, this.operation);
@@ -71,4 +69,11 @@ public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Ma
     public void doAfterAllAnalysed(AnalysisContext context) {
     }
 
+    /**
+     * 获取head行索引，默认是0
+     * @return head行索引
+     */
+    protected int getHeadRowIndex() {
+        return 0;
+    }
 }
