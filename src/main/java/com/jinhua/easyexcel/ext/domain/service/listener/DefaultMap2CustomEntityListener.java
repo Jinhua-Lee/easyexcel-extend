@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * ExcelMap转对象的监听器
@@ -42,7 +43,7 @@ public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Ma
     public void invoke(Map<Integer, String> data, AnalysisContext context) {
 
         if (context.readRowHolder().getRowIndex() == getHeadRowIndex()) {
-            this.index2HeadName = data;
+            this.index2HeadName = Objects.requireNonNull(data);
         } else {
             handleData(data, index2HeadName, this.operation);
         }
