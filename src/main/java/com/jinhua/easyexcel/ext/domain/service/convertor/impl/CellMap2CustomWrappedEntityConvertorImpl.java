@@ -62,6 +62,10 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
         for (Map.Entry<Integer, String> entry : cellIndex2Data.entrySet()) {
             Integer colIndex = entry.getKey();
             String colValue = entry.getValue();
+            // 对于null字段，暂不建立对象
+            if (colValue == null) {
+                continue;
+            }
             String cellFieldName = Optional.ofNullable(index2Head.get(colIndex))
                     .orElseThrow(() -> new NoSuchElementException("No value present"));
 
