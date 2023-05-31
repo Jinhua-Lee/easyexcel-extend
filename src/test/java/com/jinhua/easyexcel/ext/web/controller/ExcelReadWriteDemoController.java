@@ -4,14 +4,12 @@ import com.jinhua.easyexcel.ext.service.StreamHandleService;
 import com.jinhua.easyexcel.ext.web.controller.dto.DynamicColumnDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Jinhua-Lee
@@ -32,9 +30,17 @@ public class ExcelReadWriteDemoController {
         }
     }
 
-    @PostMapping(value = "/dynamic/out")
+    @GetMapping(value = "/dynamic/out")
     public DynamicColumnDTO dynamicColumnOutput(HttpServletResponse response) {
-        this.streamHandleService.dynamicHeadOut(response);
+        String fileName = "dynamic_column.xlsx";
+        response.setContentType("application/vnd.ms-excel");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        try {
+            this.streamHandleService.dynamicHeadOut(response.getOutputStream());
+        } catch (IOException e) {
+            log.error("output error: {}", e.getMessage());
+        }
         return null;
     }
 

@@ -2,6 +2,7 @@ package com.jinhua.easyexcel.ext.service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 流解析服务
@@ -20,9 +21,9 @@ public interface StreamHandleService {
     /**
      * 将给定对象导出实体内容
      *
-     * @param response Http响应对象，用于输出excel文件
+     * @param outputStream 输出流
      */
-    void dynamicHeadOut(HttpServletResponse response);
+    void dynamicHeadOut(OutputStream outputStream);
 
     /**
      * 复杂头导入

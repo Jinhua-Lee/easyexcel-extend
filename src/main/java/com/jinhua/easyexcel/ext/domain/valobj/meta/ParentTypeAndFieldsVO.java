@@ -4,6 +4,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.jinhua.easyexcel.ext.annotation.CollectionGathered;
 import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
 import com.jinhua.easyexcel.ext.domain.entity.IColumnGatheredSubType;
+import com.jinhua.easyexcel.ext.domain.entity.meta.DynamicColumnAnalysisInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -151,5 +152,55 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                     collectionGatheredField.get(customWrappedEntity);
         }
         return iColumnGatheredSubTypes;
+    }
+
+    public Map<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap4Entity(Collection<?> entities) {
+        Map<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap = new LinkedHashMap<>();
+
+        // 每个对象中每个字段的最大数量
+        entities.forEach(entity -> {
+            Map<FieldAndAnnotationWithGenericType, Integer> colFieldNumMap = numMap4CollectionGatheredField(entity);
+
+            colFieldNumMap.forEach((faaWithGeneric, num) -> {
+
+                maxColFieldNumMap.compute(faaWithGeneric, (fieldAndAnnotation, number) -> {
+                    number = number == null ? 0 : number;
+                    if (num > number) {
+                        return num;
+                    }
+                    return number;
+                });
+            });
+        });
+        return maxColFieldNumMap;
+    }
+
+    /**
+     * 获取某对象的@CollectionGather字段的数目
+     *
+     * @param object 对象
+     * @return 某对象的@CollectionGather字段的数目
+     */
+    public Map<FieldAndAnnotationWithGenericType, Integer> numMap4CollectionGatheredField(Object object) {
+        if (!object.getClass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
+            throw new IllegalStateException(
+                    String.format("type = %s is not suitable for dynamic column analysis." +
+                            " Make sure the Type is annotated with @DynamicColumnAnalysis.", object.getClass())
+            );
+        }
+        Map<FieldAndAnnotationWithGenericType, Integer> colFieldNumMap =
+                new LinkedHashMap<>(gatheredFieldsAndAnnotations.size());
+        this.gatheredFieldsAndAnnotations.forEach(gFieldAnnotation -> {
+            Field colField = gFieldAnnotation.getField();
+            try {
+                Collection<?> colFieldVal = (Collection<?>) colField.get(object);
+                colFieldNumMap.put(gFieldAnnotation,
+                        Optional.ofNullable(colFieldVal)
+                                .orElse(Collections.emptySet()).size()
+                );
+            } catch (IllegalAccessException ignored) {
+            }
+        });
+        return colFieldNumMap;
     }
 }

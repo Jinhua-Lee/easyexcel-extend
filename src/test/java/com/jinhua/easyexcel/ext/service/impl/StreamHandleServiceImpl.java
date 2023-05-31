@@ -1,15 +1,21 @@
 package com.jinhua.easyexcel.ext.service.impl;
 
 import com.alibaba.excel.EasyExcel;
-import com.jinhua.easyexcel.ext.service.StreamHandleService;
+import com.jinhua.easyexcel.ext.domain.entity.DynamicColumnEntity;
+import com.jinhua.easyexcel.ext.domain.service.convertor.CustomWrappedEntity2DynamicMetaAndDataConvertor;
 import com.jinhua.easyexcel.ext.domain.service.listener.DefaultMap2CustomEntityListener;
+import com.jinhua.easyexcel.ext.service.StreamHandleService;
 import com.jinhua.easyexcel.ext.service.listener.ComplexDynamicEntityListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Jinhua-Lee
@@ -20,6 +26,7 @@ public class StreamHandleServiceImpl implements StreamHandleService {
 
     private DefaultMap2CustomEntityListener<?> defaultMap2CustomEntityListener;
     private ComplexDynamicEntityListener<?> complexDynamicEntityListener;
+    private CustomWrappedEntity2DynamicMetaAndDataConvertor customWrappedEntity2DynamicMetaAndDataConvertor;
 
     @Override
     public void dynamicHeadIn(InputStream inputStream) {
@@ -29,7 +36,68 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     }
 
     @Override
-    public void dynamicHeadOut(HttpServletResponse response) {
+    public void dynamicHeadOut(OutputStream outputStream) {
+        this.customWrappedEntity2DynamicMetaAndDataConvertor.convert(buildList(), DynamicColumnEntity.class);
+
+    }
+
+    private List<DynamicColumnEntity> buildList() {
+        List<DynamicColumnEntity> dynamicColumnEntities = new ArrayList<>();
+        DynamicColumnEntity dy1 = DynamicColumnEntity.builder()
+                .name("ljh")
+                .columnGatheredEntities(
+                        Arrays.asList(
+                                DynamicColumnEntity.ColumnGatheredEntity.builder()
+                                        .a("ljh_a1")
+                                        .b("ljh_b1")
+                                        .build(),
+                                DynamicColumnEntity.ColumnGatheredEntity.builder()
+                                        .a("ljh_a2")
+                                        .b("ljh_b2")
+                                        .build()
+                        )
+                ).anotherColumnGatheredEntities(
+                        Arrays.asList(
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("ljh_a1_s")
+                                        .b("ljh_b1_s")
+                                        .build(),
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("ljh_a2_s")
+                                        .b("ljh_b2_s")
+                                        .build()
+                        )
+                ).build();
+        dy1.setId(1);
+        DynamicColumnEntity dy2 = DynamicColumnEntity.builder()
+                .name("lwk")
+                .columnGatheredEntities(
+                        Collections.singletonList(
+                                DynamicColumnEntity.ColumnGatheredEntity.builder()
+                                        .a("lwk_a1")
+                                        .b("lwk_b1")
+                                        .build()
+                        )
+                ).anotherColumnGatheredEntities(
+                        Arrays.asList(
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("lwk_a1_s")
+                                        .b("lwk_b1_s")
+                                        .build(),
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("lwk_a2_s")
+                                        .b("lwk_b2_s")
+                                        .build(),
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("lwk_a3_s")
+                                        .b("lwk_b3_s")
+                                        .build()
+                        )
+                ).build();
+        dy2.setId(2);
+        dynamicColumnEntities.add(dy1);
+        dynamicColumnEntities.add(dy2);
+        return dynamicColumnEntities;
     }
 
     @Override
@@ -39,8 +107,7 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     }
 
     @Autowired
-    public void setMapDataAnalysisEventListener(
-            DefaultMap2CustomEntityListener<?> defaultMap2CustomEntityListener) {
+    public void setDefaultMap2CustomEntityListener(DefaultMap2CustomEntityListener<?> defaultMap2CustomEntityListener) {
         this.defaultMap2CustomEntityListener = defaultMap2CustomEntityListener;
     }
 
@@ -48,4 +115,11 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     public void setComplexDynamicEntityListener(ComplexDynamicEntityListener<?> complexDynamicEntityListener) {
         this.complexDynamicEntityListener = complexDynamicEntityListener;
     }
+
+    @Autowired
+    public void setCustomWrappedEntity2DynamicMetaAndDataConvertor(
+            CustomWrappedEntity2DynamicMetaAndDataConvertor customWrappedEntity2DynamicMetaAndDataConvertor) {
+        this.customWrappedEntity2DynamicMetaAndDataConvertor = customWrappedEntity2DynamicMetaAndDataConvertor;
+    }
+
 }
