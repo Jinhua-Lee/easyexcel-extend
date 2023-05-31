@@ -135,26 +135,19 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
                                                         TypeAndAnnotationVO subTypeAndAnnotation) {
         ColumnGatheredSubType dynamicColumnSubTypeAnnotation =
                 (ColumnGatheredSubType) subTypeAndAnnotation.getDynamicColumnAnalysisAnnotation();
+        // 截取前两个作为对象标识【类型-对象序列】-属性
+        String subTypeIdentity = cellFieldName.trim().substring(
+                0,
+                cellFieldName.lastIndexOf(dynamicColumnSubTypeAnnotation.separator())
+        );
         return fieldCollection.stream().filter(subObj ->
-                Objects.equals(
-                        subObj.getSubTypeIdentity(),
-                        // 截取前两个作为对象标识【类型-对象序列】-属性
-                        cellFieldName.trim().substring(
-                                0,
-                                cellFieldName.lastIndexOf(dynamicColumnSubTypeAnnotation.separator())
-                        )
-                )
+                Objects.equals(subObj.getSubTypeIdentity(), subTypeIdentity)
         ).findFirst().orElseGet(() -> {
             // 实例化指定类型的对象
             try {
                 IColumnGatheredSubType iColumnGatheredSubType =
                         (IColumnGatheredSubType) subTypeAndAnnotation.getType().getDeclaredConstructor().newInstance();
-                // 截取前两个作为对象标识【类型-对象序列】-属性
-                iColumnGatheredSubType.setSubTypeIdentity(
-                        cellFieldName.trim().substring(0,
-                                cellFieldName.lastIndexOf(dynamicColumnSubTypeAnnotation.separator())
-                        )
-                );
+                iColumnGatheredSubType.setSubTypeIdentity(subTypeIdentity);
                 // 加到已有集合中
                 fieldCollection.add(iColumnGatheredSubType);
                 return iColumnGatheredSubType;

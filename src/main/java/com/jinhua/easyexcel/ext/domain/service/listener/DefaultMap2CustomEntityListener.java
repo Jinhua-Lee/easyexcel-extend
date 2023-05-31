@@ -44,7 +44,7 @@ public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Ma
 
         if (context.readRowHolder().getRowIndex() == getHeadRowIndex()) {
             this.index2HeadName = Objects.requireNonNull(data);
-        } else {
+        } else if (context.readRowHolder().getRowIndex() > getHeadRowIndex()) {
             handleData(data, index2HeadName, this.operation);
         }
     }
@@ -72,6 +72,7 @@ public class DefaultMap2CustomEntityListener<T> extends AnalysisEventListener<Ma
 
     /**
      * 获取head行索引，默认是0
+     *
      * @return head行索引
      */
     protected int getHeadRowIndex() {

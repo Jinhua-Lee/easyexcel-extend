@@ -1,5 +1,6 @@
 package com.jinhua.easyexcel.ext.service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 
 /**
@@ -10,9 +11,23 @@ import java.io.InputStream;
 public interface StreamHandleService {
 
     /**
-     * 通过读取流，进行excel的解析，由于数据量原因暂无返回值
+     * 解析动态Head
      *
      * @param inputStream 输入流
      */
-    void analyze(InputStream inputStream);
+    void dynamicHeadIn(InputStream inputStream);
+
+    /**
+     * 将给定对象导出实体内容
+     *
+     * @param response Http响应对象，用于输出excel文件
+     */
+    void dynamicHeadOut(HttpServletResponse response);
+
+    /**
+     * 复杂头导入
+     *
+     * @param inputStream 输入流
+     */
+    void complexHeadIn(InputStream inputStream);
 }
