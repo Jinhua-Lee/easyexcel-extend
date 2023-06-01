@@ -116,7 +116,7 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
                             faaWithGeneric.getSubTypeAndFields().getTypeAndAnnotation().getType());
                 }
             } else {
-                log.error("failed to find field for cell-field = {}", cellFieldName);
+                log.warn("failed to find field for cell-field = {}", cellFieldName);
             }
         }
         return customWrappedEntity;
@@ -134,7 +134,7 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
                                                         Collection<IColumnGatheredSubType> fieldCollection,
                                                         TypeAndAnnotationVO subTypeAndAnnotation) {
         ColumnGatheredSubType dynamicColumnSubTypeAnnotation =
-                (ColumnGatheredSubType) subTypeAndAnnotation.getDynamicColumnAnalysisAnnotation();
+                (ColumnGatheredSubType) subTypeAndAnnotation.getAnnotation();
         // 截取前两个作为对象标识【类型-对象序列】-属性
         String subTypeIdentity = cellFieldName.trim().substring(
                 0,

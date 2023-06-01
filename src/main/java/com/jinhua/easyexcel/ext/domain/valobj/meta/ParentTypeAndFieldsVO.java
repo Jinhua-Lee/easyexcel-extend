@@ -4,7 +4,6 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.jinhua.easyexcel.ext.annotation.CollectionGathered;
 import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
 import com.jinhua.easyexcel.ext.domain.entity.IColumnGatheredSubType;
-import com.jinhua.easyexcel.ext.domain.entity.meta.DynamicColumnAnalysisInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -66,7 +65,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                                 && !ObjectUtils.isEmpty(field.getAnnotation(ExcelProperty.class).value())
                 ).map(field ->
                         new FieldAndAnnotationVO(field, field.getAnnotation(ExcelProperty.class))
-                ).collect(Collectors.toSet());
+                ).collect(Collectors.toCollection(LinkedHashSet::new));
         // 3. 【父类型的聚合属性 + 引用的子类型】列表
         this.gatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
@@ -79,7 +78,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                             field, field.getAnnotation(CollectionGathered.class),
                             resolveGenericRefType4Field(field)
                     );
-                }).collect(Collectors.toSet());
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
 
         // 3. 校验集合引用的子类型的重复
         duplicationCheckOfCollectionRefTypeThrows();
@@ -154,23 +153,21 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
         return iColumnGatheredSubTypes;
     }
 
-    public Map<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap4Entity(Collection<?> entities) {
-        Map<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap = new LinkedHashMap<>();
+    public LinkedHashMap<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap4Entity(Collection<?> entities) {
+        LinkedHashMap<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap = new LinkedHashMap<>();
 
         // 每个对象中每个字段的最大数量
         entities.forEach(entity -> {
             Map<FieldAndAnnotationWithGenericType, Integer> colFieldNumMap = numMap4CollectionGatheredField(entity);
-
-            colFieldNumMap.forEach((faaWithGeneric, num) -> {
-
-                maxColFieldNumMap.compute(faaWithGeneric, (fieldAndAnnotation, number) -> {
-                    number = number == null ? 0 : number;
-                    if (num > number) {
-                        return num;
-                    }
-                    return number;
-                });
-            });
+            colFieldNumMap.forEach((faaWithGeneric, num) ->
+                    maxColFieldNumMap.compute(faaWithGeneric, (fieldAndAnnotation, number) -> {
+                        number = number == null ? 0 : number;
+                        if (num > number) {
+                            return num;
+                        }
+                        return number;
+                    })
+            );
         });
         return maxColFieldNumMap;
     }

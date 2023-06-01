@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class SubTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                         )
                 ).map(field ->
                         new FieldAndAnnotationVO(field, field.getAnnotation(DynamicColumnAnalysis.class))
-                ).collect(Collectors.toSet());
+                ).collect(Collectors.toCollection(LinkedHashSet::new));
         // 1. 校验注解属性的重复性
         checkAnnotationPropertyDuplicationThrows();
         // 2. 校验子类型实现某接口
@@ -78,7 +79,7 @@ public class SubTypeAndFieldsVO extends BaseTypeAndFieldsVO {
     public Optional<FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {
         return this.subFieldAndAnnotations.stream().filter(faa -> {
             ColumnGatheredSubType columnGatheredSubType =
-                    (ColumnGatheredSubType) this.typeAndAnnotation.getDynamicColumnAnalysisAnnotation();
+                    (ColumnGatheredSubType) this.typeAndAnnotation.getAnnotation();
             DynamicColumnAnalysis curSubFieldAnnotation = (DynamicColumnAnalysis) faa.getAnnotation();
             return cellFieldName.startsWith(
                     columnGatheredSubType.subTypeIdentity() + columnGatheredSubType.separator()

@@ -35,7 +35,7 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
             );
         }
 
-        // 2. 找出
+        // 2. 构建动态解析对象
         DynamicColumnAnalysisInfo analysisInfo = dynamicColumnAnalysisInfos.compute(tClass,
                 (clazz, aInfo) -> {
                     if (aInfo == null) {
@@ -43,16 +43,7 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
                     }
                     return aInfo;
                 });
-
-        // 遍历各个对象中的最大值，用于统计Meta个数
-        Map<FieldAndAnnotationWithGenericType, Integer> maxColFieldNumMap =
-                analysisInfo.getParent().maxColFieldNumMap4Entity(entities);
-
-        // 3. 构建Meta信息
-        //      2.1 @ExcelProperty字段列表
-        //      2.2 @CollectionGathered字段列表铺平
-
-
-        return null;
+        // 3. 解析动态列名及转换数据
+        return analysisInfo.metaAndDataToWrite(entities);
     }
 }

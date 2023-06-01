@@ -15,11 +15,11 @@ import java.lang.annotation.Annotation;
 public class TypeAndAnnotationVO {
 
     private Class<?> type;
-    private Annotation dynamicColumnAnalysisAnnotation;
+    private Annotation annotation;
 
     public TypeAndAnnotationVO(Class<?> type, Class<? extends Annotation> annotationClass) {
         this.type = type;
-        this.dynamicColumnAnalysisAnnotation = type.getAnnotation(annotationClass);
+        this.annotation = type.getAnnotation(annotationClass);
     }
 
     public boolean implTypeOf(Class<?> baseType) {
