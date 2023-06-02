@@ -64,7 +64,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                         field.isAnnotationPresent(ExcelProperty.class)
                                 && !ObjectUtils.isEmpty(field.getAnnotation(ExcelProperty.class).value())
                 ).map(field ->
-                        new FieldAndAnnotationVO(field, field.getAnnotation(ExcelProperty.class))
+                        new FieldAndAnnotationVO(field, field.getAnnotation(ExcelProperty.class), null)
                 ).collect(Collectors.toCollection(LinkedHashSet::new));
         // 3. 【父类型的聚合属性 + 引用的子类型】列表
         this.gatheredFieldsAndAnnotations = declaredFields.stream()

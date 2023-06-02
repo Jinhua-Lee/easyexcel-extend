@@ -105,7 +105,7 @@ public class CellMap2CustomWrappedEntityConvertorImpl implements CellMap2CustomW
                         faaWithGeneric.getSubTypeAndFields().getTypeAndAnnotation()
                 );
                 //      3.3 通过反射设置值。
-                Optional<FieldAndAnnotationVO> faaByCellFieldNameOpt =
+                Optional<? extends FieldAndAnnotationVO> faaByCellFieldNameOpt =
                         faaWithGeneric.getSubTypeAndFields().matchedSubFieldAndAnnotation(cellFieldName);
                 if (faaByCellFieldNameOpt.isPresent()) {
                     faaByCellFieldNameOpt.get().setCellStringField4Entity(subObject, colValue,

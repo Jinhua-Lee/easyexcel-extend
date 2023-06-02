@@ -27,12 +27,12 @@ public class SubTypeAndFieldsVO extends BaseTypeAndFieldsVO {
      */
     Set<FieldAndAnnotationVO> subFieldAndAnnotations;
 
-    public SubTypeAndFieldsVO(Class<?> type) {
+    public SubTypeAndFieldsVO(Class<?> type, FieldAndAnnotationVO parent) {
         super(type, ColumnGatheredSubType.class);
-        buildSubMeta(type);
+        buildSubMeta(type, parent);
     }
 
-    private void buildSubMeta(Class<?> type) {
+    private void buildSubMeta(Class<?> type, FieldAndAnnotationVO parent) {
         this.subFieldAndAnnotations = Arrays.stream(type.getDeclaredFields())
                 // 外部访问权限
                 .peek(field -> field.setAccessible(true))
@@ -42,7 +42,9 @@ public class SubTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                                 field.getAnnotation(DynamicColumnAnalysis.class).subFieldIdentity()
                         )
                 ).map(field ->
-                        new FieldAndAnnotationVO(field, field.getAnnotation(DynamicColumnAnalysis.class))
+                        new FieldAndAnnotationVO(
+                                field, field.getAnnotation(DynamicColumnAnalysis.class), parent
+                        )
                 ).collect(Collectors.toCollection(LinkedHashSet::new));
         // 1. 校验注解属性的重复性
         checkAnnotationPropertyDuplicationThrows();
@@ -76,7 +78,7 @@ public class SubTypeAndFieldsVO extends BaseTypeAndFieldsVO {
         }
     }
 
-    public Optional<FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {
+    public Optional<? extends FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {
         return this.subFieldAndAnnotations.stream().filter(faa -> {
             ColumnGatheredSubType columnGatheredSubType =
                     (ColumnGatheredSubType) this.typeAndAnnotation.getAnnotation();

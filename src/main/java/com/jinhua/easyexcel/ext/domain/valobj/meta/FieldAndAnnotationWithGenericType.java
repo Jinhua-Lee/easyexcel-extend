@@ -20,13 +20,13 @@ public class FieldAndAnnotationWithGenericType extends FieldAndAnnotationVO {
 
     public FieldAndAnnotationWithGenericType(Field field, Annotation annotation,
                                              Class<?> subType) {
-        super(field, annotation);
+        super(field, annotation, null);
         // 构造子类型的对象
-        this.subTypeAndFields = new SubTypeAndFieldsVO(subType);
+        this.subTypeAndFields = new SubTypeAndFieldsVO(subType, this);
         // 校验子类型的动态列注解
     }
 
-    public Optional<FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {
+    public Optional<? extends FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {
         return this.subTypeAndFields.matchedSubFieldAndAnnotation(cellFieldName);
     }
 }

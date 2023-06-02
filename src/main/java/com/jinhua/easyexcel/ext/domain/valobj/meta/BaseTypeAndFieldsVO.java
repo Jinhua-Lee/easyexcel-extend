@@ -20,12 +20,6 @@ public class BaseTypeAndFieldsVO {
      */
     protected final TypeAndAnnotationVO typeAndAnnotation;
 
-    /**
-     * 非上述两种注解的属性信息
-     */
-    @SuppressWarnings("unused")
-    protected Set<FieldAndAnnotationVO> otherFields;
-
     public BaseTypeAndFieldsVO(Class<?> type,  Class<? extends Annotation> annotationClass) {
         this.typeAndAnnotation = new TypeAndAnnotationVO(type, annotationClass);
     }

@@ -20,7 +20,12 @@ public class FieldAndAnnotationVO {
     private final Field field;
     private final Annotation annotation;
 
-    public FieldAndAnnotationVO(Field field, Annotation annotation) {
+    /**
+     * 如果是子类型的字段，则需要缓存父类属性信息
+     */
+    private final FieldAndAnnotationVO parent;
+
+    public FieldAndAnnotationVO(Field field, Annotation annotation, FieldAndAnnotationVO parent) {
         if (field == null) {
             throw new IllegalArgumentException("field must not be null.");
         }
@@ -29,6 +34,7 @@ public class FieldAndAnnotationVO {
             throw new IllegalArgumentException("annotation must not be null.");
         }
         this.annotation = annotation;
+        this.parent = parent;
     }
 
     public void setCellStringField4Entity(Object entity, String value, CellString2FieldSetter cellString2FieldSetter) {

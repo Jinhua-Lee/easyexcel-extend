@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jinhua.easyexcel.ext.annotation.CollectionGathered;
 import com.jinhua.easyexcel.ext.annotation.ColumnGatheredSubType;
 import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
+import com.jinhua.easyexcel.ext.annotation.ObjectIdentityStrategy;
 import lombok.*;
 
 import java.util.List;
@@ -35,7 +36,9 @@ public class DynamicColumnEntity extends BaseDynamicEntity {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @ColumnGatheredSubType(subTypeIdentity = "dy", separator = '_')
+    @ColumnGatheredSubType(subTypeIdentity = "dy", separator = '_',
+            objectIdentityStrategy = @ObjectIdentityStrategy(value = 2, objectIdentityRange = {"打开", "闭合"})
+    )
     public static class ColumnGatheredEntity implements IColumnGatheredSubType {
 
         /**
@@ -59,7 +62,7 @@ public class DynamicColumnEntity extends BaseDynamicEntity {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @ColumnGatheredSubType(subTypeIdentity = "dc", separator = '_')
+    @ColumnGatheredSubType(subTypeIdentity = "dc", separator = '_', objectIdentityStrategy = @ObjectIdentityStrategy)
     public static class AnotherColumnGatheredEntity implements IColumnGatheredSubType {
 
         /**

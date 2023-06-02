@@ -25,4 +25,13 @@ public @interface ColumnGatheredSubType {
      * @return 字段名分隔符
      */
     char separator();
+
+    /**
+     * 对象序号策略，当前仅支持
+     * 1. 给定序号自增
+     * 2. 枚举范围
+     *
+     * @return 对象序号策略
+     */
+    ObjectIdentityStrategy objectIdentityStrategy();
 }

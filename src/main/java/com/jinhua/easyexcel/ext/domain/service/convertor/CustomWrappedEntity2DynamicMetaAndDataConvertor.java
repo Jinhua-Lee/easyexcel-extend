@@ -1,6 +1,6 @@
 package com.jinhua.easyexcel.ext.domain.service.convertor;
 
-import com.jinhua.easyexcel.ext.domain.valobj.meta.DynamicMetaAndDataToWrite;
+import com.jinhua.easyexcel.ext.domain.valobj.meta.out.DynamicMetaAndDataToWrite;
 
 import java.util.Collection;
 
