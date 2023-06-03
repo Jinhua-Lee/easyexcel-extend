@@ -23,7 +23,6 @@ public class FieldAndAnnotationWithGenericType extends FieldAndAnnotationVO {
         super(field, annotation, null);
         // 构造子类型的对象
         this.subTypeAndFields = new SubTypeAndFieldsVO(subType, this);
-        // 校验子类型的动态列注解
     }
 
     public Optional<? extends FieldAndAnnotationVO> matchedSubFieldAndAnnotation(String cellFieldName) {

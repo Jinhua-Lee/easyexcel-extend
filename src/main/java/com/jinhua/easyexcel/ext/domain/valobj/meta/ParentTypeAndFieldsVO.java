@@ -2,8 +2,11 @@ package com.jinhua.easyexcel.ext.domain.valobj.meta;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.jinhua.easyexcel.ext.annotation.CollectionGathered;
+import com.jinhua.easyexcel.ext.annotation.ColumnGatheredSubType;
 import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
+import com.jinhua.easyexcel.ext.annotation.ObjectIdentityStrategy;
 import com.jinhua.easyexcel.ext.domain.entity.IColumnGatheredSubType;
+import com.jinhua.easyexcel.ext.util.StringUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -82,6 +85,9 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
 
         // 3. 校验集合引用的子类型的重复
         duplicationCheckOfCollectionRefTypeThrows();
+
+        // 4. 校验集合注解属性：重复性，策略的字段关系
+        subTypeAnnotationCheckOfDuplicationAndIdentityStrategy(type);
     }
 
     /**
@@ -110,6 +116,54 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                     this.typeAndAnnotation.getType()
             ));
         }
+    }
+
+    private void subTypeAnnotationCheckOfDuplicationAndIdentityStrategy(Class<?> parentType) {
+        List<ColumnGatheredSubType> gatheredSubTypeAnnotations = this.gatheredFieldsAndAnnotations.stream()
+                .filter(Objects::nonNull)
+                .map(FieldAndAnnotationWithGenericType::getSubTypeAndFields)
+                // 子类型及注解
+                .map(subTypeAndFieldsVO -> (ColumnGatheredSubType) subTypeAndFieldsVO.getTypeAndAnnotation())
+                .collect(Collectors.toList());
+
+        // 1. 对象标识【subTypeIdentity】的重复性
+        Set<String> subTypeIdentities = gatheredSubTypeAnnotations.stream()
+                .map(ColumnGatheredSubType::subTypeIdentity).collect(Collectors.toSet());
+        if (subTypeIdentities.size() != gatheredSubTypeAnnotations.size()) {
+            throw new IllegalStateException(
+                    String.format("There are duplication annotation property(subTypeIdentity)" +
+                                    " among subtypes of parentType = %s, which is not allowed. Please check.",
+                            parentType
+                    )
+            );
+        }
+
+        // 2. 校验注解策略配置与属性字段关系
+        gatheredSubTypeAnnotations.forEach(gatheredSubTypeAnnotation -> {
+            ObjectIdentityStrategy objIdentityStrategy = gatheredSubTypeAnnotation.objectIdentityStrategy();
+            // 2.1 为给定范围枚举策略时，枚举范围值不允许为empty
+            final int enumStrategy = 2;
+            if (objIdentityStrategy.value() == enumStrategy) {
+                if (ObjectUtils.isEmpty(objIdentityStrategy.objectIdentityRange())) {
+                    throw new IllegalStateException(String.format(
+                            "There are some illegal annotation configurations in subType, parentType = %s",
+                            parentType
+                    ));
+                }
+            }
+            // 2.2 策略之间的冲突：枚举类型每个元素都不允许是纯数字
+            for (String identityEnumItem : objIdentityStrategy.objectIdentityRange()) {
+                if (StringUtil.ofNumeric(identityEnumItem)) {
+                    throw new IllegalStateException(
+                            String.format(
+                                    "the enumeration string is not allowed to be of pure numbers." +
+                                            " please check parentType(%s)",
+                                    parentType
+                            )
+                    );
+                }
+            }
+        });
     }
 
     public void initCollectionFields4Entity(Object dynamicColumnEntity) {

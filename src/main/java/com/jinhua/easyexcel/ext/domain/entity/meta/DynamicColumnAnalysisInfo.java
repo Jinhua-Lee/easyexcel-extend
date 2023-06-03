@@ -38,26 +38,27 @@ public class DynamicColumnAnalysisInfo {
 
     @SuppressWarnings(value = "unchecked")
     public DynamicMetaAndDataToWrite metaAndDataToWrite(Collection<?> dynamicColumnCollection) {
-        LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMetaMap = buildMeta(dynamicColumnCollection);
+        LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta = buildMeta(dynamicColumnCollection);
 
         // 2. 构建Data信息
         // 需要根据Meta信息完成对象的构建
         List<Object[]> rows = new ArrayList<>(dynamicColumnCollection.size());
         // 对每行数据
         dynamicColumnCollection.forEach(dynamicColumnObject -> {
-            Object[] row = new Object[fieldNames2fieldMetaMap.size()];
+            Object[] row = new Object[fieldNames2fieldMeta.size()];
+            rows.add(row);
 
             // 记录excel中的字段顺序，用于匹配meta信息和data信息能在同一列
             AtomicInteger excelFieldIndex = new AtomicInteger(-1);
             // 逐个获取字段并放置，如果没有找到，则设置null
-            fieldNames2fieldMetaMap.forEach((fieldName, fieldMeta) -> {
+            fieldNames2fieldMeta.forEach((fieldNames, fieldMeta) -> {
                 int fieldIndex = excelFieldIndex.incrementAndGet();
                 FieldAndAnnotationVO parent = fieldMeta.getParent();
                 // 1. 当作父对象的属性去解析
                 if (parent == null) {
                     ExcelProperty excelProperty = (ExcelProperty) fieldMeta.getAnnotation();
                     // value是为了支持多级表头或多个列，这里对象来自同一个地方，所以可以直接比较相等性
-                    if (Objects.equals(fieldName, Arrays.asList(excelProperty.value()))) {
+                    if (Objects.equals(fieldNames, Arrays.asList(excelProperty.value()))) {
                         try {
                             Object parentFiledObj = fieldMeta.getField().get(dynamicColumnObject);
                             row[fieldIndex] = parentFiledObj;
@@ -76,6 +77,8 @@ public class DynamicColumnAnalysisInfo {
                 } catch (IllegalAccessException e) {
                     log.error("动态对象输出解析，解析子对象，权限访问异常！");
                 }
+
+
             });
         });
 

@@ -29,7 +29,8 @@ public @interface ObjectIdentityStrategy {
     int autoIncrementStartNum() default 1;
 
     /**
-     * 【给定范围枚举】策略时，范围枚举值
+     * 【给定范围枚举】策略时，范围枚举值<p>
+     * 不允许是纯数字
      *
      * @return 【给定范围枚举】
      */
