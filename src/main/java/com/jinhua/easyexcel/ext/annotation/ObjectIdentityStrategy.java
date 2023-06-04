@@ -12,6 +12,9 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.TYPE)
 public @interface ObjectIdentityStrategy {
 
+    int STRATEGY_INCREMENT = 1;
+    int STRATEGY_ENUM_RANGE = 2;
+
     /**
      * 策略：
      * 1. 给定序号自增
@@ -26,7 +29,7 @@ public @interface ObjectIdentityStrategy {
      *
      * @return 自增起始值
      */
-    int autoIncrementStartNum() default 1;
+    int autoIncrementStart() default 1;
 
     /**
      * 【给定范围枚举】策略时，范围枚举值<p>
