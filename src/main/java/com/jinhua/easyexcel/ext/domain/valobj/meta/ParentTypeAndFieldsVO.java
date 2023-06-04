@@ -123,7 +123,8 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                 .filter(Objects::nonNull)
                 .map(FieldAndAnnotationWithGenericType::getSubTypeAndFields)
                 // 子类型及注解
-                .map(subTypeAndFieldsVO -> (ColumnGatheredSubType) subTypeAndFieldsVO.getTypeAndAnnotation())
+                .map(SubTypeAndFieldsVO::getTypeAndAnnotation)
+                .map(typeAndAnnotationVO -> (ColumnGatheredSubType)typeAndAnnotationVO.getAnnotation())
                 .collect(Collectors.toList());
 
         // 1. 对象标识【subTypeIdentity】的重复性
