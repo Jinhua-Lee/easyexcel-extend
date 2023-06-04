@@ -76,12 +76,12 @@ public class DynamicColumnAnalysisInfo {
                         switch (identityStrategy.value()) {
                             case ObjectIdentityStrategy.STRATEGY_INCREMENT:
                                 fillExcelColumn4SubObjByIdentityIncrement(fieldNames2fieldMeta, row,
-                                        fieldNames, parent, subObjects, gatheredSubType
+                                        fieldNames, fieldMeta, subObjects, gatheredSubType
                                 );
                                 break;
                             case ObjectIdentityStrategy.STRATEGY_ENUM_RANGE:
                                 fillExcelColumn4SubObjByIdentityEnum(fieldNames2fieldMeta, row,
-                                        fieldNames, parent, subObjects, gatheredSubType
+                                        fieldNames, fieldMeta, subObjects, gatheredSubType
                                 );
                                 break;
                             default:
@@ -100,13 +100,10 @@ public class DynamicColumnAnalysisInfo {
 
     private void fillExcelColumn4SubObjByIdentityIncrement(
             LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta, Object[] row,
-            List<String> fieldNames, FieldAndAnnotationVO parent,
+            List<String> fieldNames, FieldAndAnnotationVO fieldMeta,
             Collection<? extends IColumnGatheredSubType> subObjects, ColumnGatheredSubType gatheredSubType) {
 
         ObjectIdentityStrategy identityStrategy = gatheredSubType.objectIdentityStrategy();
-
-        String metaFieldName = fieldNames.get(fieldNames.size() - 1);
-
         AtomicInteger objIdentityAtomic = new AtomicInteger(identityStrategy.autoIncrementStart());
 
         // 将子对象的值逐个设置到excel字段中
@@ -115,18 +112,17 @@ public class DynamicColumnAnalysisInfo {
             fieldNames2fieldMeta.forEach((fieldNames4Sub, fieldMeta4Sub) -> {
                 int index = indexAtomic.incrementAndGet();
                 // 如果是子对象匹配规则的字段（【对象类型】-【对象标识】）
-                if (Objects.equals(fieldMeta4Sub.getParent(), parent)
-                        && row[index] == null) {
+                if (Objects.equals(fieldMeta4Sub, fieldMeta) && row[index] == null) {
                     DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) fieldMeta4Sub.getAnnotation();
                     String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
                             + objIdentityAtomic.getAndIncrement() + gatheredSubType.separator()
                             + subFieldAnnotation.subFieldIdentity();
 
-                    if (Objects.equals(metaFieldName, buildFieldName)) {
+                    if (Objects.equals(fieldNames.get(fieldNames.size() - 1), buildFieldName)) {
                         try {
                             row[index] = fieldMeta4Sub.getField().get(subObject);
                         } catch (IllegalAccessException e) {
-                            log.error("子对象字段设置失败！ ex = {}", e.getMessage());
+                            log.error("【给定序号自增策略】子对象字段设置失败！ ex = {}", e.getMessage());
                         }
                     }
                 }
@@ -136,9 +132,36 @@ public class DynamicColumnAnalysisInfo {
 
     private void fillExcelColumn4SubObjByIdentityEnum(
             LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta, Object[] row,
-            List<String> fieldNames, FieldAndAnnotationVO parent,
+            List<String> fieldNames, FieldAndAnnotationVO fieldMeta,
             Collection<? extends IColumnGatheredSubType> subObjects, ColumnGatheredSubType gatheredSubType) {
 
+        ObjectIdentityStrategy identityStrategy = gatheredSubType.objectIdentityStrategy();
+        String[] identityRanges = identityStrategy.objectIdentityRange();
+
+        AtomicInteger objIdentityIndexAtomic = new AtomicInteger(0);
+
+        // 将子对象的值逐个设置到excel字段中
+        subObjects.forEach(subObject -> {
+            AtomicInteger indexAtomic = new AtomicInteger(-1);
+            fieldNames2fieldMeta.forEach((fieldNames4Sub, fieldMeta4Sub) -> {
+                int index = indexAtomic.incrementAndGet();
+                // 如果是子对象匹配规则的字段（【对象类型】-【对象标识】）
+                if (Objects.equals(fieldMeta4Sub, fieldMeta) && row[index] == null) {
+                    DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) fieldMeta4Sub.getAnnotation();
+                    String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
+                            + identityRanges[objIdentityIndexAtomic.get()] + gatheredSubType.separator()
+                            + subFieldAnnotation.subFieldIdentity();
+                    if (Objects.equals(fieldNames.get(fieldNames.size() - 1), buildFieldName)) {
+                        try {
+                            row[index] = fieldMeta4Sub.getField().get(subObject);
+                            objIdentityIndexAtomic.getAndIncrement();
+                        } catch (IllegalAccessException e) {
+                            log.error("【枚举范围对象标识策略】子对象字段设置失败！ ex = {}", e.getMessage());
+                        }
+                    }
+                }
+            });
+        });
     }
 
     private void fillNonGatheredFields(Object dynamicColumnObject, Object[] row, List<String> fieldNames,
