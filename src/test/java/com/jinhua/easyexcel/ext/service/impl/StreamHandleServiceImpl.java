@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.jinhua.easyexcel.ext.domain.entity.DynamicColumnEntity;
 import com.jinhua.easyexcel.ext.domain.service.convertor.CustomWrappedEntity2DynamicMetaAndDataConvertor;
 import com.jinhua.easyexcel.ext.domain.service.listener.DefaultMap2CustomEntityListener;
+import com.jinhua.easyexcel.ext.domain.valobj.meta.out.DynamicMetaAndDataToWrite;
 import com.jinhua.easyexcel.ext.service.StreamHandleService;
 import com.jinhua.easyexcel.ext.service.listener.ComplexDynamicEntityListener;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +37,16 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     }
 
     @Override
+    @SuppressWarnings(value = "unchecked")
     public void dynamicHeadOut(OutputStream outputStream) {
-        this.customWrappedEntity2DynamicMetaAndDataConvertor.convert(buildList(), DynamicColumnEntity.class);
+        DynamicMetaAndDataToWrite metaAndDataToWrite = this.customWrappedEntity2DynamicMetaAndDataConvertor
+                .convert(buildList(), DynamicColumnEntity.class);
+
+        EasyExcel.write(outputStream)
+                .head((List<List<String>>) metaAndDataToWrite.getMetaToWrite().getDynamicMeta())
+                .needHead(true)
+                .sheet("Sheet1")
+                .doWrite(metaAndDataToWrite.getDataToWrite().getDynamicData());
 
     }
 
@@ -91,6 +100,10 @@ public class StreamHandleServiceImpl implements StreamHandleService {
                                 DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
                                         .a("lwk_a3_s")
                                         .b("lwk_b3_s")
+                                        .build(),
+                                DynamicColumnEntity.AnotherColumnGatheredEntity.builder()
+                                        .a("lwk_a4_s")
+                                        .b("lwk_b4_s")
                                         .build()
                         )
                 ).build();

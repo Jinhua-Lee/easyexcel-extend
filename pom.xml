@@ -6,7 +6,7 @@
 
     <groupId>com.jinhua</groupId>
     <artifactId>easyexcel-extend</artifactId>
-    <version>1.0.12-beta</version>
+    <version>1.0.13</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

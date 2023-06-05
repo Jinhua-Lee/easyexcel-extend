@@ -9,13 +9,15 @@ import com.jinhua.easyexcel.ext.domain.valobj.meta.FieldAndAnnotationVO;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.FieldAndAnnotationWithGenericType;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.ParentTypeAndFieldsVO;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.SubTypeAndFieldsVO;
-import com.jinhua.easyexcel.ext.domain.valobj.meta.out.DynamicMetaAndDataToWrite;
+import com.jinhua.easyexcel.ext.domain.valobj.meta.out.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 动态列分析类型，元数据
@@ -39,10 +41,32 @@ public class DynamicColumnAnalysisInfo {
         this.parent = new ParentTypeAndFieldsVO(type);
     }
 
-    @SuppressWarnings(value = "unchecked")
     public DynamicMetaAndDataToWrite metaAndDataToWrite(Collection<?> dynamicColumnCollection) {
         LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta = buildMeta(dynamicColumnCollection);
+        return DynamicMetaAndDataToWrite.builder()
+                .metaToWrite(
+                        DynamicNamesListWrapper.builder()
+                                .cellNamesList(new ArrayList<>(fieldNames2fieldMeta.keySet()))
+                                .build()
+                ).dataToWrite(
+                        DataRowsWrapper.builder()
+                                .dataRows(
+                                        transferElementToList(
+                                                buildData(dynamicColumnCollection, fieldNames2fieldMeta)
+                                        )
+                                ).build()
+                ).build();
+    }
 
+    private List<List<Object>> transferElementToList(List<Object[]> rows) {
+        List<List<Object>> result = new ArrayList<>();
+        rows.forEach(row -> result.add(Arrays.stream(row).collect(Collectors.toList())));
+        return result;
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    private List<Object[]> buildData(Collection<?> dynamicColumnCollection,
+                                     LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta) {
         // 2. 构建Data信息
         // 需要根据Meta信息完成对象的构建
         List<Object[]> rows = new ArrayList<>(dynamicColumnCollection.size());
@@ -76,90 +100,125 @@ public class DynamicColumnAnalysisInfo {
                         switch (identityStrategy.value()) {
                             case ObjectIdentityStrategy.STRATEGY_INCREMENT:
                                 fillExcelColumn4SubObjByIdentityIncrement(fieldNames2fieldMeta, row,
-                                        fieldNames, fieldMeta, subObjects, gatheredSubType
+                                        subObjects, gatheredSubType
                                 );
                                 break;
                             case ObjectIdentityStrategy.STRATEGY_ENUM_RANGE:
                                 fillExcelColumn4SubObjByIdentityEnum(fieldNames2fieldMeta, row,
-                                        fieldNames, fieldMeta, subObjects, gatheredSubType
+                                        subObjects, gatheredSubType
                                 );
                                 break;
                             default:
                                 throw new IllegalStateException("unsupported object identity strategy");
                         }
-
                     } catch (IllegalAccessException e) {
                         log.error("动态对象输出解析，解析子对象，权限访问异常！");
                     }
                 }
             });
         });
-
-        return null;
+        return rows;
     }
 
     private void fillExcelColumn4SubObjByIdentityIncrement(
             LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta, Object[] row,
-            List<String> fieldNames, FieldAndAnnotationVO fieldMeta,
             Collection<? extends IColumnGatheredSubType> subObjects, ColumnGatheredSubType gatheredSubType) {
 
         ObjectIdentityStrategy identityStrategy = gatheredSubType.objectIdentityStrategy();
-        AtomicInteger objIdentityAtomic = new AtomicInteger(identityStrategy.autoIncrementStart());
+        AtomicInteger objIdentityAtomic = new AtomicInteger(identityStrategy.autoIncrementStart() - 1);
 
-        // 将子对象的值逐个设置到excel字段中
+        Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
+        assert subObjOpt.isPresent();
+        LinkedHashMap<List<String>, FieldAndAnnotationVO> subObjFieldNames2Meta = analyseFieldsMeta4SubObject(
+                subObjOpt.get().getClass().getDeclaredFields(), fieldNames2fieldMeta
+        );
+
+        // 必须将subObject的所有字段都设置到row中
+        // 作为subObject的字典
         subObjects.forEach(subObject -> {
-            AtomicInteger indexAtomic = new AtomicInteger(-1);
-            fieldNames2fieldMeta.forEach((fieldNames4Sub, fieldMeta4Sub) -> {
-                int index = indexAtomic.incrementAndGet();
-                // 如果是子对象匹配规则的字段（【对象类型】-【对象标识】）
-                if (Objects.equals(fieldMeta4Sub, fieldMeta) && row[index] == null) {
-                    DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) fieldMeta4Sub.getAnnotation();
-                    String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
-                            + objIdentityAtomic.getAndIncrement() + gatheredSubType.separator()
-                            + subFieldAnnotation.subFieldIdentity();
+            objIdentityAtomic.incrementAndGet();
+            subObjFieldNames2Meta.forEach((subFieldNames, subFieldMeta) -> {
+                DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis)
+                        subFieldMeta.getAnnotation();
+                String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
+                        + objIdentityAtomic.get() + gatheredSubType.separator()
+                        + subFieldAnnotation.subFieldIdentity();
 
-                    if (Objects.equals(fieldNames.get(fieldNames.size() - 1), buildFieldName)) {
-                        try {
-                            row[index] = fieldMeta4Sub.getField().get(subObject);
-                        } catch (IllegalAccessException e) {
-                            log.error("【给定序号自增策略】子对象字段设置失败！ ex = {}", e.getMessage());
+                // fieldNames2fieldMeta的forEach仅是为了index服务的
+                AtomicInteger indexAtomic = new AtomicInteger(-1);
+                fieldNames2fieldMeta.forEach((fieldNames, fieldMeta) -> {
+                    int index = indexAtomic.incrementAndGet();
+                    if (index >= row.length) {
+                        throw new IllegalStateException("[object identity increment strategy]" +
+                                " Object num exceeds the meta num. Please check object num.");
+                    }
+
+                    if (Objects.equals(fieldMeta, subFieldMeta)
+                            && Objects.equals(fieldNames, subFieldNames)
+                            && row[index] == null) {
+                        // ExcelProperty的复杂表头，要求传List<String>此处我们暂时取最后一个元素即可
+                        if (Objects.equals(subFieldNames.get(subFieldNames.size() - 1), buildFieldName)) {
+                            try {
+                                row[index] = subFieldMeta.getField().get(subObject);
+                            } catch (IllegalAccessException e) {
+                                log.error("【给定序号自增策略】子对象字段设置失败！ ex = {}", e.getMessage());
+                            }
                         }
                     }
-                }
+                });
             });
         });
     }
 
     private void fillExcelColumn4SubObjByIdentityEnum(
             LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta, Object[] row,
-            List<String> fieldNames, FieldAndAnnotationVO fieldMeta,
             Collection<? extends IColumnGatheredSubType> subObjects, ColumnGatheredSubType gatheredSubType) {
 
         ObjectIdentityStrategy identityStrategy = gatheredSubType.objectIdentityStrategy();
         String[] identityRanges = identityStrategy.objectIdentityRange();
+        AtomicInteger objIdentityIndexAtomic = new AtomicInteger(-1);
 
-        AtomicInteger objIdentityIndexAtomic = new AtomicInteger(0);
+        Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
+        assert subObjOpt.isPresent();
+        LinkedHashMap<List<String>, FieldAndAnnotationVO> subObjFieldNames2Meta = analyseFieldsMeta4SubObject(
+                subObjOpt.get().getClass().getDeclaredFields(), fieldNames2fieldMeta
+        );
 
         // 将子对象的值逐个设置到excel字段中
         subObjects.forEach(subObject -> {
-            AtomicInteger indexAtomic = new AtomicInteger(-1);
-            fieldNames2fieldMeta.forEach((fieldNames4Sub, fieldMeta4Sub) -> {
-                int index = indexAtomic.incrementAndGet();
-                // 如果是子对象匹配规则的字段（【对象类型】-【对象标识】）
-                if (Objects.equals(fieldMeta4Sub, fieldMeta) && row[index] == null) {
-                    DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) fieldMeta4Sub.getAnnotation();
-                    String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
-                            + identityRanges[objIdentityIndexAtomic.get()] + gatheredSubType.separator()
-                            + subFieldAnnotation.subFieldIdentity();
-                    if (Objects.equals(fieldNames.get(fieldNames.size() - 1), buildFieldName)) {
-                        try {
-                            row[index] = fieldMeta4Sub.getField().get(subObject);
-                            objIdentityIndexAtomic.getAndIncrement();
-                        } catch (IllegalAccessException e) {
-                            log.error("【枚举范围对象标识策略】子对象字段设置失败！ ex = {}", e.getMessage());
+            objIdentityIndexAtomic.incrementAndGet();
+            subObjFieldNames2Meta.forEach((subFieldNames, subFieldMeta) -> {
+                DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) subFieldMeta.getAnnotation();
+
+                if (objIdentityIndexAtomic.get() >= identityRanges.length) {
+                    throw new IllegalStateException("[object identity enumeration strategy]" +
+                            " Object num exceeds the strategy enumeration num. Please check object num.");
+                }
+
+                String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
+                        + identityRanges[objIdentityIndexAtomic.get()] + gatheredSubType.separator()
+                        + subFieldAnnotation.subFieldIdentity();
+
+                // fieldNames2fieldMeta的forEach仅是为了index服务的
+                AtomicInteger indexAtomic = new AtomicInteger(-1);
+                fieldNames2fieldMeta.forEach((fieldNames, fieldMeta) -> {
+                    int index = indexAtomic.incrementAndGet();
+                    if (index >= row.length) {
+                        throw new IllegalStateException("[object identity enumeration strategy]" +
+                                " Object num exceeds the meta num. Please check object num.");
+                    }
+                    if (Objects.equals(fieldMeta, subFieldMeta)
+                            && Objects.equals(fieldNames, subFieldNames)
+                            && row[index] == null) {
+                        if (Objects.equals(fieldNames.get(fieldNames.size() - 1), buildFieldName)) {
+                            try {
+                                row[index] = fieldMeta.getField().get(subObject);
+                            } catch (IllegalAccessException e) {
+                                log.error("【枚举范围对象标识策略】子对象字段设置失败！ ex = {}", e.getMessage());
+                            }
                         }
                     }
-                }
+                });
             });
         });
     }
@@ -177,6 +236,19 @@ public class DynamicColumnAnalysisInfo {
                 log.error("动态对象输出解析，解析父对象，权限访问异常！");
             }
         }
+    }
+
+    private LinkedHashMap<List<String>, FieldAndAnnotationVO> analyseFieldsMeta4SubObject(
+            Field[] declaredFields, LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta) {
+        LinkedHashMap<List<String>, FieldAndAnnotationVO> subDynamicFieldNames2Meta = new LinkedHashMap<>();
+        for (Field declaredField : declaredFields) {
+            fieldNames2fieldMeta.forEach((fieldNames, fieldMeta) -> {
+                if (Objects.equals(declaredField, fieldMeta.getField())) {
+                    subDynamicFieldNames2Meta.put(fieldNames, fieldMeta);
+                }
+            });
+        }
+        return subDynamicFieldNames2Meta;
     }
 
     private LinkedHashMap<List<String>, FieldAndAnnotationVO> buildMeta(Collection<?> dynamicColumnCollection) {
