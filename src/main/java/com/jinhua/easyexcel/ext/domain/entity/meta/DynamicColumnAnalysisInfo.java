@@ -128,7 +128,9 @@ public class DynamicColumnAnalysisInfo {
         AtomicInteger objIdentityAtomic = new AtomicInteger(identityStrategy.autoIncrementStart() - 1);
 
         Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
-        assert subObjOpt.isPresent();
+        if(!subObjOpt.isPresent()) {
+            return;
+        }
         LinkedHashMap<List<String>, FieldAndAnnotationVO> subObjFieldNames2Meta = analyseFieldsMeta4SubObject(
                 subObjOpt.get().getClass().getDeclaredFields(), fieldNames2fieldMeta
         );
@@ -179,7 +181,9 @@ public class DynamicColumnAnalysisInfo {
         AtomicInteger objIdentityIndexAtomic = new AtomicInteger(-1);
 
         Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
-        assert subObjOpt.isPresent();
+        if (!subObjOpt.isPresent()) {
+            return;
+        }
         LinkedHashMap<List<String>, FieldAndAnnotationVO> subObjFieldNames2Meta = analyseFieldsMeta4SubObject(
                 subObjOpt.get().getClass().getDeclaredFields(), fieldNames2fieldMeta
         );
