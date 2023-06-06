@@ -180,7 +180,8 @@ public class DynamicColumnAnalysisInfo {
         String[] identityRanges = identityStrategy.objectIdentityRange();
         AtomicInteger objIdentityIndexAtomic = new AtomicInteger(-1);
 
-        Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
+        Optional<? extends IColumnGatheredSubType> subObjOpt = Optional.ofNullable(subObjects)
+                .orElse(Collections.emptySet()).stream().findFirst();
         if (!subObjOpt.isPresent()) {
             return;
         }
