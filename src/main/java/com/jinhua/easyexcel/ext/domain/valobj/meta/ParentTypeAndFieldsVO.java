@@ -124,7 +124,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                 .map(FieldAndAnnotationWithGenericType::getSubTypeAndFields)
                 // 子类型及注解
                 .map(SubTypeAndFieldsVO::getTypeAndAnnotation)
-                .map(typeAndAnnotationVO -> (ColumnGatheredSubType)typeAndAnnotationVO.getAnnotation())
+                .map(typeAndAnnotationVO -> (ColumnGatheredSubType) typeAndAnnotationVO.getAnnotation())
                 .collect(Collectors.toList());
 
         // 1. 对象标识【subTypeIdentity】的重复性
@@ -234,7 +234,8 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
      * @return 某对象的@CollectionGather字段的数目
      */
     public Map<FieldAndAnnotationWithGenericType, Integer> numMap4CollectionGatheredField(Object object) {
-        if (!object.getClass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
+        if (!object.getClass().isAnnotationPresent(DynamicColumnAnalysis.class)
+                && !object.getClass().getSuperclass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
             throw new IllegalStateException(
                     String.format("type = %s is not suitable for dynamic column analysis." +
                             " Make sure the Type is annotated with @DynamicColumnAnalysis.", object.getClass())
