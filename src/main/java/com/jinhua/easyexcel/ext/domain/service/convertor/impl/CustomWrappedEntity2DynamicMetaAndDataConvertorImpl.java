@@ -1,6 +1,5 @@
 package com.jinhua.easyexcel.ext.domain.service.convertor.impl;
 
-import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
 import com.jinhua.easyexcel.ext.domain.entity.meta.DynamicColumnAnalysisInfo;
 import com.jinhua.easyexcel.ext.domain.service.convertor.CustomWrappedEntity2DynamicMetaAndDataConvertor;
 import com.jinhua.easyexcel.ext.domain.valobj.meta.out.DynamicMetaAndDataToWrite;
@@ -8,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,15 +26,11 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
         if (ObjectUtils.isEmpty(entities)) {
             throw new IllegalArgumentException("Entities must not be empty!");
         }
-        // 1. 校验类型注解
-        if (!tClass.isAnnotationPresent(DynamicColumnAnalysis.class)) {
-            throw new IllegalStateException(
-                    String.format("type = %s is not suitable for dynamic column analysis." +
-                            " Make sure the Type is annotated with @DynamicColumnAnalysis.", tClass)
-            );
+        if (tClass == null) {
+            throw new IllegalArgumentException("entity class must not be null!");
         }
 
-        // 2. 构建动态解析对象
+        // 1. 构建动态解析对象
         DynamicColumnAnalysisInfo analysisInfo = dynamicColumnAnalysisInfos.compute(tClass,
                 (clazz, aInfo) -> {
                     if (aInfo == null) {
@@ -42,7 +38,7 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
                     }
                     return aInfo;
                 });
-        // 3. 解析动态列名及转换数据
+        // 2. 解析动态列名及转换数据
         return analysisInfo.metaAndDataToWrite(entities);
     }
 }
