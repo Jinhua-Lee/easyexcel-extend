@@ -56,7 +56,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
 
     private void buildParentMeta(Class<?> type) {
         // 2. 父类型的的非聚合属性列表
-        Set<Field> declaredFields = new HashSet<>();
+        Set<Field> declaredFields = new LinkedHashSet<>();
         declaredFields.addAll(Arrays.asList(type.getDeclaredFields()));
         declaredFields.addAll(Arrays.asList(type.getSuperclass().getDeclaredFields()));
 
@@ -68,7 +68,12 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                                 && !ObjectUtils.isEmpty(field.getAnnotation(ExcelProperty.class).value())
                 ).map(field ->
                         new FieldAndAnnotationVO(field, field.getAnnotation(ExcelProperty.class), null)
-                ).collect(Collectors.toCollection(LinkedHashSet::new));
+                ).sorted((f1, f2) -> {
+                    ExcelProperty f1ExcelProp = (ExcelProperty) f1.getAnnotation();
+                    ExcelProperty f2ExcelProp = (ExcelProperty) f2.getAnnotation();
+                    return new ExcelPropertyComparator().compare(f1ExcelProp, f2ExcelProp);
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         // 3. 【父类型的聚合属性 + 引用的子类型】列表
         this.gatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
@@ -255,5 +260,27 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
             }
         });
         return colFieldNumMap;
+    }
+
+    private static class ExcelPropertyComparator implements Comparator<ExcelProperty> {
+        @Override
+        public int compare(ExcelProperty exProp1, ExcelProperty exProp2) {
+            int cmpIndex = compareIndex(exProp1, exProp2);
+            return cmpIndex == 0 ? compareOrder(exProp1, exProp2) : cmpIndex;
+        }
+
+        private int compareIndex(ExcelProperty exProp1, ExcelProperty exProp2) {
+            if (exProp1.index() >= 0 && exProp2.index() >= 0) {
+                if (exProp1.index() == exProp2.index()) {
+                    return 0;
+                }
+                return exProp1.index() - exProp2.index();
+            }
+            return exProp1.index() - exProp2.index();
+        }
+
+        private int compareOrder(ExcelProperty exProp1, ExcelProperty exProp2) {
+            return exProp1.order() - exProp2.order();
+        }
     }
 }
