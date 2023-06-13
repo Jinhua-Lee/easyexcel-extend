@@ -314,10 +314,12 @@ public class DynamicColumnAnalysisInfo {
                                             subFieldAndAnnotation.getAnnotation()
                                     ).subFieldIdentity();
                                     fieldNames2fieldMetaMap.put(
-                                            Collections.singletonList(
-                                                    subTypeIdentity + separator
-                                                            + identity + separator
-                                                            + subFieldIdentity
+                                            new ArrayList<>(
+                                                    Collections.singletonList(
+                                                            subTypeIdentity + separator
+                                                                    + identity + separator
+                                                                    + subFieldIdentity
+                                                    )
                                             ),
                                             subFieldAndAnnotation
                                     );
