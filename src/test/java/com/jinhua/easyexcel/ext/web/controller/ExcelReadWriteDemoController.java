@@ -1,7 +1,6 @@
 package com.jinhua.easyexcel.ext.web.controller;
 
 import com.jinhua.easyexcel.ext.service.StreamHandleService;
-import com.jinhua.easyexcel.ext.web.controller.dto.DynamicColumnDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -31,8 +32,16 @@ public class ExcelReadWriteDemoController {
     }
 
     @GetMapping(value = "/dynamic/out")
-    public DynamicColumnDTO dynamicColumnOutput(HttpServletResponse response) {
-        String fileName = "dynamic_column.xlsx";
+    public void dynamicColumnOutput(HttpServletResponse response) {
+        String originalName = "dynamic_column.xlsx";
+        String fileName;
+        try {
+            fileName = URLEncoder.encode(originalName, StandardCharsets.UTF_8.name())
+                    .replace("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            response.setStatus(500);
+            return;
+        }
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
         response.setHeader("Content-disposition", "attachment;filename=" + fileName);
@@ -41,7 +50,6 @@ public class ExcelReadWriteDemoController {
         } catch (IOException e) {
             log.error("output error: {}", e.getMessage());
         }
-        return null;
     }
 
     @PostMapping(value = "/complex-head/in")
