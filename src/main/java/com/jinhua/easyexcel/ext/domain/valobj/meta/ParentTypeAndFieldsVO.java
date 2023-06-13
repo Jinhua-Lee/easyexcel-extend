@@ -72,8 +72,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                     ExcelProperty f1ExcelProp = (ExcelProperty) f1.getAnnotation();
                     ExcelProperty f2ExcelProp = (ExcelProperty) f2.getAnnotation();
                     return new ExcelPropertyComparator().compare(f1ExcelProp, f2ExcelProp);
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
         // 3. 【父类型的聚合属性 + 引用的子类型】列表
         this.gatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
@@ -266,7 +265,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
         @Override
         public int compare(ExcelProperty exProp1, ExcelProperty exProp2) {
             int cmpIndex = compareIndex(exProp1, exProp2);
-            return cmpIndex == 0 ? compareOrder(exProp1, exProp2) : cmpIndex;
+            return cmpIndex == 0 || cmpIndex == -1 ? compareOrder(exProp1, exProp2) : cmpIndex;
         }
 
         private int compareIndex(ExcelProperty exProp1, ExcelProperty exProp2) {
@@ -275,8 +274,13 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                     return 0;
                 }
                 return exProp1.index() - exProp2.index();
+            } else if (exProp1.index() < 0 && exProp2.index() < 0) {
+                return exProp1.index() - exProp2.index();
+            } else if (exProp1.index() < 0) {
+                return 1;
+            } else {
+                return -1;
             }
-            return exProp1.index() - exProp2.index();
         }
 
         private int compareOrder(ExcelProperty exProp1, ExcelProperty exProp2) {
