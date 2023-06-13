@@ -269,7 +269,7 @@ public class DynamicColumnAnalysisInfo {
         Set<FieldAndAnnotationVO> nonGatheredFieldsAndAnnotations = this.parent.getNonGatheredFieldsAndAnnotations();
         nonGatheredFieldsAndAnnotations.forEach(nonGather -> {
             String[] excelPropertyValue = ((ExcelProperty) nonGather.getAnnotation()).value();
-            fieldNames2fieldMetaMap.put(Arrays.asList(excelPropertyValue), nonGather);
+            fieldNames2fieldMetaMap.put(new ArrayList<>(Arrays.asList(excelPropertyValue)), nonGather);
         });
         //      1.2 @CollectionGathered字段列表铺平
         // LinkedHashMap
