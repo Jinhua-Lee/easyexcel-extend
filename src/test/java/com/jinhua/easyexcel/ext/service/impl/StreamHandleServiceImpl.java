@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Jinhua-Lee
@@ -55,15 +52,17 @@ public class StreamHandleServiceImpl implements StreamHandleService {
         DynamicColumnEntity dy1 = DynamicColumnEntity.builder()
                 .name("ljh")
                 .columnGatheredEntities(
-                        Arrays.asList(
-                                DynamicColumnEntity.ColumnGatheredEntity.builder()
-                                        .a("ljh_a1")
-                                        .b("ljh_b1")
-                                        .build(),
-                                DynamicColumnEntity.ColumnGatheredEntity.builder()
-                                        .a("ljh_a2")
-                                        .b("ljh_b2")
-                                        .build()
+                        new LinkedHashSet<>(
+                                Arrays.asList(
+                                        DynamicColumnEntity.ColumnGatheredEntity.builder()
+                                                .a("ljh_a1")
+                                                .b("ljh_b1")
+                                                .build(),
+                                        DynamicColumnEntity.ColumnGatheredEntity.builder()
+                                                .a("ljh_a2")
+                                                .b("ljh_b2")
+                                                .build()
+                                )
                         )
                 ).anotherColumnGatheredEntities(
                         Arrays.asList(
@@ -81,7 +80,7 @@ public class StreamHandleServiceImpl implements StreamHandleService {
         DynamicColumnEntity dy2 = DynamicColumnEntity.builder()
                 .name("lwk")
                 .columnGatheredEntities(
-                        Collections.singletonList(
+                        Collections.singleton(
                                 DynamicColumnEntity.ColumnGatheredEntity.builder()
                                         .a("lwk_a1")
                                         .b("lwk_b1")

@@ -9,6 +9,7 @@ import com.jinhua.easyexcel.ext.annotation.ObjectIdentityStrategy;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 动态列的实体模拟
@@ -20,14 +21,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@DynamicColumnAnalysis
 public class DynamicColumnEntity extends BaseDynamicEntity {
 
     @ExcelProperty(value = "name")
     private String name;
 
     @CollectionGathered
-    private List<ColumnGatheredEntity> columnGatheredEntities;
+    private Set<ColumnGatheredEntity> columnGatheredEntities;
 
     @CollectionGathered
     private List<AnotherColumnGatheredEntity> anotherColumnGatheredEntities;
@@ -62,7 +62,7 @@ public class DynamicColumnEntity extends BaseDynamicEntity {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @ColumnGatheredSubType(subTypeIdentity = "dc", separator = '_', objectIdentityStrategy = @ObjectIdentityStrategy)
+    @ColumnGatheredSubType(subTypeIdentity = "dc", separator = '_')
     public static class AnotherColumnGatheredEntity implements IColumnGatheredSubType {
 
         /**

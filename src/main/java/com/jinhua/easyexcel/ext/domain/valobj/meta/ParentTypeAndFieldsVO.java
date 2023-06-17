@@ -184,7 +184,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                         }
                     } else if (field.getType() == Set.class) {
                         try {
-                            field.set(dynamicColumnEntity, new HashSet<>());
+                            field.set(dynamicColumnEntity, new LinkedHashSet<>());
                         } catch (IllegalAccessException e) {
                             log.error("访问权限错误，message = {}", e.getMessage());
                         }

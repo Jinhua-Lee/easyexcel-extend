@@ -33,5 +33,5 @@ public @interface ColumnGatheredSubType {
      *
      * @return 对象序号策略
      */
-    ObjectIdentityStrategy objectIdentityStrategy();
+    ObjectIdentityStrategy objectIdentityStrategy() default @ObjectIdentityStrategy;
 }
