@@ -12,7 +12,7 @@
 * 不同的父对象，子对象的数量与字段null情况
 ![02_多个复杂对象导出_Excel表头动态情况.png](src/main/resources/for_readme/02_多个复杂对象导出_Excel表头动态情况.png)
 
-* 对于被引用对象的数量，对整体Exccle表头字段数量的影响
+* 对于被引用对象的数量，对整体Excel表头字段数量的影响
 ![03_复杂对象增加引用子对象_Excel效果.png](src/main/resources/for_readme/03_复杂对象增加引用子对象_Excel效果.png)
 
 ## 二、问题场景
