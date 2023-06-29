@@ -44,8 +44,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
     public ParentTypeAndFieldsVO(Class<?> type) {
         super(type, DynamicColumnAnalysis.class);
         // 1. 判断【动态列解析】的开启状态
-        if (!type.isAnnotationPresent(DynamicColumnAnalysis.class)
-                && !type.getSuperclass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
+        if (!dynamicAnalysisEnabled(type)) {
             throw new UnsupportedOperationException(
                     String.format("类型未允许自定义解析！ class = %s", type)
             );
@@ -54,11 +53,24 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
         buildParentMeta(type);
     }
 
+    /**
+     * 校验某个类型及其父类型，是否有开启动态列解析
+     *
+     * @param type 类型
+     * @return 是否开启动态列解析
+     */
+    private boolean dynamicAnalysisEnabled(Class<?> type) {
+        if (type == Object.class) {
+            return false;
+        }
+        return type.isAnnotationPresent(DynamicColumnAnalysis.class)
+                || dynamicAnalysisEnabled(type.getSuperclass());
+    }
+
     private void buildParentMeta(Class<?> type) {
         // 2. 父类型的的非聚合属性列表
         Set<Field> declaredFields = new LinkedHashSet<>();
-        declaredFields.addAll(Arrays.asList(type.getDeclaredFields()));
-        declaredFields.addAll(Arrays.asList(type.getSuperclass().getDeclaredFields()));
+        resolveAllDeclaredFieldsUpwards(declaredFields, type);
 
         this.nonGatheredFieldsAndAnnotations = declaredFields.stream()
                 // 外部访问权限
@@ -92,6 +104,14 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
 
         // 4. 校验集合注解属性：重复性，策略的字段关系
         subTypeAnnotationCheckOfDuplicationAndIdentityStrategy(type);
+    }
+
+    private void resolveAllDeclaredFieldsUpwards(Set<Field> declaredFields, Class<?> type) {
+        if (type == Object.class) {
+            return;
+        }
+        declaredFields.addAll(Arrays.asList(type.getDeclaredFields()));
+        resolveAllDeclaredFieldsUpwards(declaredFields, type.getSuperclass());
     }
 
     /**

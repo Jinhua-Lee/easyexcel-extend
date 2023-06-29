@@ -1,12 +1,12 @@
 package com.jinhua.easyexcel.ext.domain.entity;
 
-import com.alibaba.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jinhua.easyexcel.ext.annotation.CollectionGathered;
 import com.jinhua.easyexcel.ext.annotation.ColumnGatheredSubType;
 import com.jinhua.easyexcel.ext.annotation.DynamicColumnAnalysis;
 import com.jinhua.easyexcel.ext.annotation.ObjectIdentityStrategy;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Set;
@@ -17,17 +17,11 @@ import java.util.Set;
  * @author Jinhua-Lee
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DynamicColumnEntity extends BaseDynamicEntity {
-
-    @ExcelProperty(value = "name")
-    private String name;
-
-    @CollectionGathered
-    private Set<ColumnGatheredEntity> columnGatheredEntities;
 
     @CollectionGathered
     private List<AnotherColumnGatheredEntity> anotherColumnGatheredEntities;
