@@ -45,8 +45,9 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
         super(type, DynamicColumnAnalysis.class);
         // 1. 判断【动态列解析】的开启状态
         if (!dynamicAnalysisEnabled(type)) {
-            throw new UnsupportedOperationException(
-                    String.format("类型未允许自定义解析！ class = %s", type)
+            throw new IllegalStateException(
+                    String.format("type = %s is not suitable for dynamic column analysis." +
+                            " Make sure the Type is annotated with @DynamicColumnAnalysis.", type)
             );
         }
         // 2. 构造父类型
@@ -258,8 +259,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
      * @return 某对象的@CollectionGather字段的数目
      */
     public Map<FieldAndAnnotationWithGenericType, Integer> numMap4CollectionGatheredField(Object object) {
-        if (!object.getClass().isAnnotationPresent(DynamicColumnAnalysis.class)
-                && !object.getClass().getSuperclass().isAnnotationPresent(DynamicColumnAnalysis.class)) {
+        if (!dynamicAnalysisEnabled(object.getClass())) {
             throw new IllegalStateException(
                     String.format("type = %s is not suitable for dynamic column analysis." +
                             " Make sure the Type is annotated with @DynamicColumnAnalysis.", object.getClass())
