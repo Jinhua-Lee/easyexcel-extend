@@ -94,6 +94,10 @@ public class DynamicColumnAnalysisInfo {
                     try {
                         subObjects = (Collection<? extends IColumnGatheredSubType>)
                                 parent.getField().get(dynamicColumnObject);
+                        // 若子对象为null，则不用处理子对象的填充了
+                        if (subObjects == null) {
+                            return;
+                        }
                         //  2.2 根据匹配规则去找到同属的字段列表并一起设置
                         ColumnGatheredSubType gatheredSubType = fieldMeta.getField().getDeclaringClass()
                                 .getAnnotation(ColumnGatheredSubType.class);
@@ -130,7 +134,7 @@ public class DynamicColumnAnalysisInfo {
         AtomicInteger objIdentityAtomic = new AtomicInteger(identityStrategy.autoIncrementStart() - 1);
 
         Optional<? extends IColumnGatheredSubType> subObjOpt = subObjects.stream().findFirst();
-        if(!subObjOpt.isPresent()) {
+        if (!subObjOpt.isPresent()) {
             return;
         }
         LinkedHashMap<List<String>, FieldAndAnnotationVO> subObjFieldNames2Meta = analyseFieldsMeta4SubObject(
