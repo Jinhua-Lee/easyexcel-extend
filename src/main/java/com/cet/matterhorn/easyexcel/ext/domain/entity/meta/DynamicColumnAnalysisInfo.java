@@ -15,6 +15,7 @@ import com.cet.matterhorn.easyexcel.ext.domain.valobj.meta.out.DynamicNamesListW
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -43,8 +44,29 @@ public class DynamicColumnAnalysisInfo {
         this.parent = new ParentTypeAndFieldsVO(type);
     }
 
-    public DynamicMetaAndDataToWrite metaAndDataToWrite(Collection<?> dynamicColumnCollection) {
-        LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta = buildMeta(dynamicColumnCollection);
+    private static final int AUTO_INCREMENT_NUM_IF_NULL_DEFAULT_VALUE = 20;
+
+    public DynamicMetaAndDataToWrite metaAndDataToWrite(Collection<?> dynamicColumnCollection,
+                                                        @Nullable Integer autoIncrementNumIfNull) {
+        if (autoIncrementNumIfNull != null) {
+            if (autoIncrementNumIfNull < 0) {
+                throw new IllegalArgumentException(
+                        String.format("arg [autoIncrementNumIfNull = %d] which is negative is not allowed.",
+                                autoIncrementNumIfNull
+                        )
+                );
+            }
+            if (autoIncrementNumIfNull > AUTO_INCREMENT_NUM_IF_NULL_DEFAULT_VALUE) {
+                throw new IllegalStateException(
+                        String.format("arg [autoIncrementNumIfNull = %d] which is bigger than 20 is not allowed.",
+                                autoIncrementNumIfNull
+                        )
+                );
+            }
+        }
+
+        LinkedHashMap<List<String>, FieldAndAnnotationVO> fieldNames2fieldMeta =
+                buildMeta(dynamicColumnCollection, autoIncrementNumIfNull);
         return DynamicMetaAndDataToWrite.builder()
                 .metaToWrite(
                         DynamicNamesListWrapper.builder()
@@ -262,7 +284,8 @@ public class DynamicColumnAnalysisInfo {
         return subDynamicFieldNames2Meta;
     }
 
-    private LinkedHashMap<List<String>, FieldAndAnnotationVO> buildMeta(Collection<?> dynamicColumnCollection) {
+    private LinkedHashMap<List<String>, FieldAndAnnotationVO> buildMeta(Collection<?> dynamicColumnCollection,
+                                                                        @Nullable Integer autoIncrementNumIfNull) {
         // 1. 构建Meta信息：每条记录即是铺平的Excel字段信息
         // 采用LinkedHashMap，严格保证Excel入参要求的添加顺序
         // key有两种类型
@@ -291,8 +314,14 @@ public class DynamicColumnAnalysisInfo {
             ObjectIdentityStrategy objectIdentityStrategy = columnGatheredSubType.objectIdentityStrategy();
             switch (objectIdentityStrategy.value()) {
                 case ObjectIdentityStrategy.STRATEGY_INCREMENT:
+                    int incrementNum = num;
+                    if (incrementNum == 0) {
+                        if (autoIncrementNumIfNull != null) {
+                            incrementNum = autoIncrementNumIfNull;
+                        }
+                    }
                     for (AtomicInteger ia = new AtomicInteger(objectIdentityStrategy.autoIncrementStart());
-                         ia.get() <= num; ia.getAndIncrement()) {
+                         ia.get() <= incrementNum; ia.getAndIncrement()) {
                         int objSerialNum = ia.get();
                         Optional.ofNullable(subTypeAndFields.getSubFieldAndAnnotations())
                                 .orElse(Collections.emptySet()).forEach(subFieldAndAnnotation -> {

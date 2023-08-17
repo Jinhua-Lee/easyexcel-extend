@@ -4,6 +4,7 @@ import com.cet.matterhorn.easyexcel.ext.domain.entity.meta.DynamicColumnAnalysis
 import com.cet.matterhorn.easyexcel.ext.domain.service.convertor.CustomWrappedEntity2DynamicMetaAndDataConvertor;
 import com.cet.matterhorn.easyexcel.ext.domain.valobj.meta.out.DynamicMetaAndDataToWrite;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -21,8 +22,11 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
 
     private final Map<Class<?>, DynamicColumnAnalysisInfo> dynamicColumnAnalysisInfos = new ConcurrentHashMap<>();
 
+
+
     @Override
-    public <T> DynamicMetaAndDataToWrite convert(Collection<T> entities, Class<T> tClass) {
+    public <T> DynamicMetaAndDataToWrite convert(Collection<T> entities, Class<T> tClass,
+                                                 @Nullable Integer autoIncrementNumIfNull) {
         if (ObjectUtils.isEmpty(entities)) {
             throw new IllegalArgumentException("Entities must not be empty!");
         }
@@ -39,6 +43,6 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
                     return aInfo;
                 });
         // 2. 解析动态列名及转换数据
-        return analysisInfo.metaAndDataToWrite(entities);
+        return analysisInfo.metaAndDataToWrite(entities, autoIncrementNumIfNull);
     }
 }

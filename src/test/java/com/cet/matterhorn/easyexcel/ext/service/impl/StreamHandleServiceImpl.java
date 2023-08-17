@@ -37,7 +37,7 @@ public class StreamHandleServiceImpl implements StreamHandleService {
     @SuppressWarnings(value = "unchecked")
     public void dynamicHeadOut(OutputStream outputStream) {
         DynamicMetaAndDataToWrite metaAndDataToWrite = this.customWrappedEntity2DynamicMetaAndDataConvertor
-                .convert(buildList(), DynamicColumnEntity.class);
+                .convert(buildList(), DynamicColumnEntity.class, 2);
 
         EasyExcel.write(outputStream)
                 .head((List<List<String>>) metaAndDataToWrite.getMetaToWrite().getDynamicMeta())
