@@ -20,7 +20,7 @@ public class ExcelConvertorConfig {
 
     @Bean
     public <T> IOperationWithEntity<T> entityOperation() {
-        return entity -> log.info("dynamic column entity = {}", entity);
+        return entity -> log.debug("dynamic column entity = {}", entity);
     }
 
     @Bean

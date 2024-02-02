@@ -211,7 +211,7 @@ public class ParentTypeAndFieldsVO extends BaseTypeAndFieldsVO {
                         }
                     }
                 });
-        log.info("initialized collection fields in object {}, which were used for dynamic column import.",
+        log.debug("initialized collection fields in object {}, which were used for dynamic column import.",
                 dynamicColumnEntity);
     }
 
