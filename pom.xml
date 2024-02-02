@@ -69,8 +69,8 @@
 
     <distributionManagement>
         <repository>
-            <id>233-public</id>
-            <url>http://10.12.135.233:9081/repository/maven-releases/</url>
+            <id>10.12.135.233_9082</id>
+            <url>http://10.12.135.233:9082/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 </project>
