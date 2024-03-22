@@ -1,5 +1,6 @@
 package com.cet.matterhorn.easyexcel.ext.domain.valobj.meta;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.cet.matterhorn.easyexcel.ext.domain.service.convertor.CellString2FieldSetter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -42,6 +43,15 @@ public class FieldAndAnnotationVO {
             cellString2FieldSetter.cellString2Field(this.field, value, entity);
         } catch (IllegalAccessException e) {
             log.error("访问权限错误，message = {}", e.getMessage());
+        } catch (NumberFormatException ne) {
+            throw new IllegalArgumentException(
+                    String.format("字段转换错误，字段 = %s，字段类型 = %s， 填入值 = %s ，message = %s",
+                            String.join(",", this.field.getAnnotation(ExcelProperty.class).value()),
+                            this.field.getType().getSimpleName(),
+                            value,
+                            ne.getMessage()
+                    )
+            );
         }
     }
 
