@@ -28,7 +28,7 @@ public class CustomWrappedEntity2DynamicMetaAndDataConvertorImpl
     public <T> DynamicMetaAndDataToWrite convert(Collection<T> entities, Class<T> tClass,
                                                  @Nullable Integer autoIncrementNumIfNull) {
         if (ObjectUtils.isEmpty(entities)) {
-            throw new IllegalArgumentException("Entities must not be empty!");
+            throw new IllegalArgumentException("entities must not be empty!");
         }
         if (tClass == null) {
             throw new IllegalArgumentException("entity class must not be null!");

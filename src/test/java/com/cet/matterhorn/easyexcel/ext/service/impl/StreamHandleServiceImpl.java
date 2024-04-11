@@ -57,10 +57,12 @@ public class StreamHandleServiceImpl implements StreamHandleService {
                                         DynamicColumnEntity.ColumnGatheredEntity.builder()
                                                 .a("ljh_a1")
                                                 .b("ljh_b1")
+                                                .subTypeIdentity("打开")
                                                 .build(),
                                         DynamicColumnEntity.ColumnGatheredEntity.builder()
                                                 .a("ljh_a2")
                                                 .b("ljh_b2")
+                                                .subTypeIdentity("闭合")
                                                 .build()
                                 )
                         )
@@ -84,6 +86,7 @@ public class StreamHandleServiceImpl implements StreamHandleService {
                                 DynamicColumnEntity.ColumnGatheredEntity.builder()
                                         .a("lwk_a1")
                                         .b("lwk_b1")
+                                        .subTypeIdentity("闭合")
                                         .build()
                         )
                 ).anotherColumnGatheredEntities(

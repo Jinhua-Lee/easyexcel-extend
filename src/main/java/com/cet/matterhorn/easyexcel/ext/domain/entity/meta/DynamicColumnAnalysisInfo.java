@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -219,6 +220,13 @@ public class DynamicColumnAnalysisInfo {
 
         // 将子对象的值逐个设置到excel字段中
         subObjects.forEach(subObject -> {
+            if (!StringUtils.hasText(subObject.getSubTypeIdentity())) {
+                throw new IllegalArgumentException(
+                        "[object identity increment strategy] "
+                                + "subObject's subTypeIdentity must not be null, please check "
+                                + "the transformation of enum range dynamic column object."
+                );
+            }
             objIdentityIndexAtomic.incrementAndGet();
             subObjFieldNames2Meta.forEach((subFieldNames, subFieldMeta) -> {
                 DynamicColumnAnalysis subFieldAnnotation = (DynamicColumnAnalysis) subFieldMeta.getAnnotation();
@@ -229,7 +237,7 @@ public class DynamicColumnAnalysisInfo {
                 }
 
                 String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
-                        + identityRanges[objIdentityIndexAtomic.get()] + gatheredSubType.separator()
+                        + subObject.getSubTypeIdentity() + gatheredSubType.separator()
                         + subFieldAnnotation.subFieldIdentity();
 
                 // fieldNames2fieldMeta的forEach仅是为了index服务的
