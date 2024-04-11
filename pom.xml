@@ -6,7 +6,7 @@
 
     <groupId>com.cet.matterhorn</groupId>
     <artifactId>easyexcel-extend</artifactId>
-    <version>1.0.31</version>
+    <version>1.0.32</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

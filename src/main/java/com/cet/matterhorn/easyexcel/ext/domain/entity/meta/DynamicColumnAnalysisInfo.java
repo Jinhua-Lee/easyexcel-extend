@@ -220,7 +220,7 @@ public class DynamicColumnAnalysisInfo {
 
         // 将子对象的值逐个设置到excel字段中
         subObjects.forEach(subObject -> {
-            if (!StringUtils.hasText(subObject.getSubTypeIdentity())) {
+            if (!StringUtils.hasText(subObject.getSubObjectIdentity())) {
                 throw new IllegalArgumentException(
                         "[object identity increment strategy] "
                                 + "subObject's subTypeIdentity must not be null, please check "
@@ -237,7 +237,7 @@ public class DynamicColumnAnalysisInfo {
                 }
 
                 String buildFieldName = gatheredSubType.subTypeIdentity() + gatheredSubType.separator()
-                        + subObject.getSubTypeIdentity() + gatheredSubType.separator()
+                        + subObject.getSubObjectIdentity() + gatheredSubType.separator()
                         + subFieldAnnotation.subFieldIdentity();
 
                 // fieldNames2fieldMeta的forEach仅是为了index服务的

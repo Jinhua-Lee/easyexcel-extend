@@ -12,12 +12,12 @@ public interface IColumnGatheredSubType {
      *
      * @return 对象标识
      */
-    String getSubTypeIdentity();
+    String getSubObjectIdentity();
 
     /**
      * 设置对象标识，取自Excel的列名
      *
-     * @param subTypeIdentity 对象标识
+     * @param subObjectIdentity 对象标识
      */
-    void setSubTypeIdentity(String subTypeIdentity);
+    void setSubObjectIdentity(String subObjectIdentity);
 }

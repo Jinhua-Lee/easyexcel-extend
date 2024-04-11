@@ -37,7 +37,7 @@ public class DynamicColumnEntity extends BaseDynamicEntity {
         /**
          * 用作子对象识别标识
          */
-        private transient String subTypeIdentity;
+        private transient String subObjectIdentity;
 
         @DynamicColumnAnalysis(subFieldIdentity = "a")
         private String a;
@@ -61,7 +61,7 @@ public class DynamicColumnEntity extends BaseDynamicEntity {
         /**
          * 用作子对象识别标识
          */
-        private transient String subTypeIdentity;
+        private transient String subObjectIdentity;
 
         @DynamicColumnAnalysis(subFieldIdentity = "a")
         private String a;
